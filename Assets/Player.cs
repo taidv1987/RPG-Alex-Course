@@ -1,9 +1,5 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using TreeEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class Player : MonoBehaviour
 {
@@ -12,6 +8,14 @@ public class Player : MonoBehaviour
 
     [SerializeField][Range(1f, 20f)] private float moveSpeed;
     [SerializeField][Range(1f, 20f)] private float jumpForce;
+
+    [Header("Dash info")]
+    [SerializeField] private float dashSpeed;
+    [SerializeField] private float dashDuration;
+    private float dashTime;
+
+    [SerializeField] private float dashCooldown;
+    private float dashCooldownTimer;
 
     private float xInput;
 
@@ -36,6 +40,9 @@ public class Player : MonoBehaviour
 
         CollisionCheck();
 
+        dashTime -= Time.deltaTime;
+        dashCooldownTimer -= Time.deltaTime;
+
         FlipController();
         AnimatorControllers();
     }
@@ -54,11 +61,32 @@ public class Player : MonoBehaviour
             if (isGrounded)
                 Jump();
         }
+
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            DashAbility();
+        }
+    }
+
+    private void DashAbility()
+    {
+        if (dashCooldownTimer < 0)
+        {
+            dashTime = dashDuration;
+            dashCooldownTimer = dashCooldown;
+        }
     }
 
     private void Movement()
     {
-        rb.velocity = new Vector2(xInput * moveSpeed, rb.velocity.y);
+        if (dashTime > 0)
+        {
+            rb.velocity = new Vector2(xInput * dashSpeed, 0f);
+        }
+        else
+        {
+            rb.velocity = new Vector2(xInput * moveSpeed, rb.velocity.y);
+        }
     }
 
     private void Jump()
@@ -74,6 +102,7 @@ public class Player : MonoBehaviour
         animator.SetFloat("yVelocity", rb.velocity.y);
         animator.SetBool("isMoving", isMoving);
         animator.SetBool("isGrounded", isGrounded);
+        animator.SetBool("isDashing", dashTime > 0);
     }
 
     private void Flip()
@@ -88,7 +117,7 @@ public class Player : MonoBehaviour
         if (rb.velocity.x > 0 && !facingRight)
         {
             Flip();
-        } 
+        }
         else if (rb.velocity.x < 0 && facingRight)
         {
             Flip();
@@ -99,4 +128,5 @@ public class Player : MonoBehaviour
     {
         Gizmos.DrawLine(transform.position, new Vector3(transform.position.x, transform.position.y - distanceToGround));
     }
+
 }
