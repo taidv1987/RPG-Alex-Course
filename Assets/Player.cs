@@ -17,6 +17,10 @@ public class Player : MonoBehaviour
     [SerializeField] private float dashCooldown;
     private float dashCooldownTimer;
 
+    [Header("Attack info")]
+    private bool isAttacking;
+    private int comboCounter;
+
     private float xInput;
 
     private int facingDir = 1;
@@ -43,8 +47,12 @@ public class Player : MonoBehaviour
         dashTime -= Time.deltaTime;
         dashCooldownTimer -= Time.deltaTime;
 
-        FlipController();
         AnimatorControllers();
+        FlipController();
+    }
+    public void AttackOver()
+    {
+        isAttacking = false;
     }
 
     private void CollisionCheck()
@@ -55,6 +63,11 @@ public class Player : MonoBehaviour
     private void KeyboardInput()
     {
         xInput = Input.GetAxisRaw("Horizontal");
+
+        if (Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            isAttacking = true;
+        }
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -103,6 +116,8 @@ public class Player : MonoBehaviour
         animator.SetBool("isMoving", isMoving);
         animator.SetBool("isGrounded", isGrounded);
         animator.SetBool("isDashing", dashTime > 0);
+        animator.SetBool("isAttacking", isAttacking);
+        animator.SetInteger("comboCounter", comboCounter);
     }
 
     private void Flip()
