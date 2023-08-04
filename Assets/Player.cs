@@ -18,7 +18,9 @@ public class Player : MonoBehaviour
     private float dashCooldownTimer;
 
     [Header("Attack info")]
-    private bool isAttacking;
+    [SerializeField] private float comboTime = 1f;
+    private float comboCooldown;
+    private bool isAttacking = false;
     private int comboCounter;
 
     private float xInput;
@@ -46,6 +48,7 @@ public class Player : MonoBehaviour
 
         dashTime -= Time.deltaTime;
         dashCooldownTimer -= Time.deltaTime;
+        comboCooldown -= Time.deltaTime;
 
         AnimatorControllers();
         FlipController();
@@ -53,6 +56,13 @@ public class Player : MonoBehaviour
     public void AttackOver()
     {
         isAttacking = false;
+
+        comboCounter++;
+
+        if (comboCounter > 2)
+        {
+            comboCounter = 0;
+        }
     }
 
     private void CollisionCheck()
@@ -66,7 +76,7 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            isAttacking = true;
+            StartAttackEvent();
         }
 
         if (Input.GetKeyDown(KeyCode.Space))
@@ -81,9 +91,25 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void StartAttackEvent()
+    {
+        if(!isGrounded)
+        {
+            return;
+        }
+
+        if (comboCooldown < 0)
+        {
+            comboCounter = 0;
+        }
+
+        isAttacking = true;
+        comboCooldown = comboTime;
+    }
+
     private void DashAbility()
     {
-        if (dashCooldownTimer < 0)
+        if (dashCooldownTimer < 0 && !isAttacking)
         {
             dashTime = dashDuration;
             dashCooldownTimer = dashCooldown;
@@ -92,9 +118,13 @@ public class Player : MonoBehaviour
 
     private void Movement()
     {
-        if (dashTime > 0)
+        if (isAttacking)
         {
-            rb.velocity = new Vector2(xInput * dashSpeed, 0f);
+            rb.velocity = new Vector2(0, 0);
+        }
+        else if (dashTime > 0)
+        {
+            rb.velocity = new Vector2(facingDir * dashSpeed, 0f);
         }
         else
         {
