@@ -1,11 +1,10 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player : Entity
 {
-    private Rigidbody2D rb;
-    private Animator animator;
-
+    [Header("Move info")]
     [SerializeField][Range(1f, 20f)] private float moveSpeed;
     [SerializeField][Range(1f, 20f)] private float jumpForce;
 
@@ -25,26 +24,20 @@ public class Player : MonoBehaviour
 
     private float xInput;
 
-    private int facingDir = 1;
-    private bool facingRight = true;
 
-    [Header("Collision Info")]
-    [SerializeField] float distanceToGround;
-    [SerializeField] LayerMask setGroundLayer;
-    private bool isGrounded;
 
-    void Start()
+    protected override void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
-        animator = GetComponentInChildren<Animator>();
+        base.Start();
     }
 
-    void Update()
+    protected override void Update()
     {
+        base.Update();
+
         KeyboardInput();
         Movement();
 
-        CollisionCheck();
 
         dashTime -= Time.deltaTime;
         dashCooldownTimer -= Time.deltaTime;
@@ -65,10 +58,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void CollisionCheck()
-    {
-        isGrounded = Physics2D.Raycast(transform.position, Vector2.down, distanceToGround, setGroundLayer);
-    }
+    
 
     private void KeyboardInput()
     {
@@ -150,12 +140,7 @@ public class Player : MonoBehaviour
         animator.SetInteger("comboCounter", comboCounter);
     }
 
-    private void Flip()
-    {
-        facingDir = facingDir * -1;
-        facingRight = !facingRight;
-        transform.Rotate(0, 180, 0);
-    }
+    
 
     private void FlipController()
     {
@@ -169,9 +154,6 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.DrawLine(transform.position, new Vector3(transform.position.x, transform.position.y - distanceToGround));
-    }
+    
 
 }
