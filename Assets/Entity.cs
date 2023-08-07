@@ -13,6 +13,7 @@ public class Entity : MonoBehaviour
     [Header("Collision Info")]
     [SerializeField] protected Transform groundCheck;
     [SerializeField] protected float distanceToGround;
+    [Space]
     [SerializeField] protected Transform wallCheck;
     [SerializeField] protected float distanceToWall;
     [Space]
